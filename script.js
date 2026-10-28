@@ -295,12 +295,11 @@
         ];
 
         // Realistic attendance records across 3 historical finalized days + Today
-        // NOTE: For Today in Class 5-A, STU001 (Ali Ahmed), STU002 (Sara Khan), and STU003 (Ahmed Ali)
-        // start UNMARKED so presenters can print and scan their 3 QR cards live during the demo!
+        // NOTE: For Today in Class 5-A, ALL 5 students (STU001..STU005) start UNMARKED (0 Present)
+        // so presenters can scan their printed QR cards live during the demo!
         const defaultAttendance = [
             // --- Today's Attendance ---
-            // Class 5-A Today: STU004 (Ayesha Noor) already checked in; STU001, STU002, STU003 ready for live QR scan!
-            { id: "ATT_T04", studentId: "STU004", classId: "CLASS_5A", date: today, time: "08:12 AM", status: "Present", method: "Manual", teacher: "teacher1" },
+            // Class 5-A Today: Starts completely unmarked (0 Present) so live QR scanning starts fresh!
 
             // Class 5-B Today: 3 Present (STU006, STU007, STU008), STU009 Absent
             { id: "ATT_T05", studentId: "STU006", classId: "CLASS_5B", date: today, time: "08:14 AM", status: "Present", method: "QR", teacher: "teacher2" },
@@ -381,7 +380,8 @@
         const defaultSettings = {
             schoolName: "Smart School",
             attendanceThreshold: 75,
-            defaultClassId: "CLASS_5A"
+            defaultClassId: "CLASS_5A",
+            demoDataVersion: 3
         };
 
         return {
@@ -430,6 +430,15 @@
             defaults.settings,
             (obj) => obj && typeof obj === "object" && typeof obj.schoolName === "string"
         );
+
+        // Auto-migrate older v1/v2 browser localStorage so Class 5-A starts with 0 Present today
+        if (state.settings.demoDataVersion !== 3) {
+            const oldPreMarkedIds = new Set(["ATT_T01", "ATT_T02", "ATT_T03", "ATT_T04"]);
+            state.attendance = state.attendance.filter((r) => !oldPreMarkedIds.has(r.id));
+            state.sessions = state.sessions.filter((s) => s.id !== "SES_T_5A");
+            state.settings.demoDataVersion = 3;
+            saveAllData();
+        }
 
         // Load active teacher session from sessionStorage
         try {
