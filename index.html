@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAttend AI — Smart QR School Attendance System</title>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans for clean educational typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- External Open-Source Libraries (with graceful fallback handled in script.js) -->
+    <!-- 1. Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js" defer></script>
+    <!-- 2. QRCode.js for generating Student QR codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+    <!-- 3. html5-qrcode for scanning QR codes with a camera -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" defer></script>
+    <!-- 4. Chart.js for interactive attendance charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+    <!-- Skip link for keyboard accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Library Warning Banner (Hidden unless a CDN library fails to load) -->
+    <div id="library-warning-banner" class="system-banner banner-warning hidden" role="alert">
+        <div class="banner-content">
+            <span class="banner-icon">⚠️</span>
+            <span id="library-warning-text">Some external libraries (QR/Charts) could not be loaded from the CDN. Check your internet connection. Core features remain available.</span>
+        </div>
+        <button type="button" class="btn-icon-only" id="close-library-banner" aria-label="Dismiss warning">✕</button>
+    </div>
+
+    <!-- Data Corruption Recovery Banner (Hidden unless localStorage JSON is malformed) -->
+    <div id="storage-recovery-banner" class="system-banner banner-error hidden" role="alert">
+        <div class="banner-content">
+            <span class="banner-icon">🚨</span>
+            <span>Stored browser data appeared corrupted or unreadable. You can restore the default demo data safely below.</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-light" id="banner-restore-btn">Restore Demo Data</button>
+    </div>
+
+    <!-- App Layout Container -->
+    <div class="app-layout no-print">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <button type="button" id="mobile-menu-toggle" class="btn-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="mobile-brand">
+                <span class="brand-badge">🎓</span>
+                <div>
+                    <span class="brand-title">SmartAttend AI</span>
+                    <span class="brand-subtitle" id="mobile-school-name">Smart School</span>
+                </div>
+            </div>
+            <div id="mobile-session-indicator" class="mobile-session-pill"></div>
+        </header>
+
+        <!-- Sidebar Backdrop for Mobile -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop hidden"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="app-sidebar" class="sidebar" aria-label="Main Navigation">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <span class="logo-icon">🎓</span>
+                    <div class="logo-text">
+                        <h1 class="app-name">SmartAttend AI</h1>
+                        <p class="school-name-display" id="sidebar-school-name">Smart School</p>
+                    </div>
+                </div>
+                <button type="button" id="sidebar-close-btn" class="btn-sidebar-close mobile-only" aria-label="Close navigation menu">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <!-- Active Session Card in Sidebar -->
+            <div class="sidebar-session-box" id="sidebar-session-box">
+                <div class="session-info">
+                    <span class="session-dot status-guest" id="sidebar-session-dot"></span>
+                    <div>
+                        <p class="session-role" id="sidebar-session-role">Visitor / Demo Mode</p>
+                        <p class="session-user" id="sidebar-session-user">Not logged in as teacher</p>
+                    </div>
+                </div>
+                <button type="button" id="sidebar-logout-btn" class="btn btn-xs btn-outline-danger hidden" title="Log out of teacher session">
+                    <i data-lucide="log-out"></i> Logout
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="sidebar-nav">
+                <div class="nav-group-label">Overview</div>
+                <button type="button" class="nav-item active" data-section="home">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>1. Home Dashboard</span>
+                </button>
+
+                <div class="nav-group-label">Administration (Demo)</div>
+                <button type="button" class="nav-item" data-section="admin">
+                    <i data-lucide="shield-check"></i>
+                    <span>2. Admin Dashboard</span>
+                </button>
+                <button type="button" class="nav-item" data-section="students">
+                    <i data-lucide="users"></i>
+                    <span>3. Student Management</span>
+                </button>
+                <button type="button" class="nav-item" data-section="qr-generator">
+                    <i data-lucide="qr-code"></i>
+                    <span>4. QR Code Generator</span>
+                </button>
+
+                <div class="nav-group-label">Teacher Portal</div>
+                <button type="button" class="nav-item" data-section="teacher-login">
+                    <i data-lucide="key-round"></i>
+                    <span>5. Teacher Login</span>
+                </button>
+                <button type="button" class="nav-item" data-section="teacher-dashboard">
+                    <i data-lucide="presentation"></i>
+                    <span>6. Teacher Dashboard</span>
+                </button>
+                <button type="button" class="nav-item" data-section="qr-scanner">
+                    <i data-lucide="scan-line"></i>
+                    <span>7. QR Scanner &amp; Manual</span>
+                </button>
+
+                <div class="nav-group-label">Analytics &amp; AI</div>
+                <button type="button" class="nav-item" data-section="records">
+                    <i data-lucide="clipboard-list"></i>
+                    <span>8. Attendance Records</span>
+                </button>
+                <button type="button" class="nav-item" data-section="reports">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>9. Attendance Reports</span>
+                </button>
+                <button type="button" class="nav-item" data-section="ai-assistant">
+                    <i data-lucide="sparkles"></i>
+                    <span>10. AI Assistant</span>
+                </button>
+
+                <div class="nav-group-label">System</div>
+                <button type="button" class="nav-item" data-section="settings">
+                    <i data-lucide="settings"></i>
+                    <span>11. Settings &amp; Demo Data</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p class="footer-note">Class 5 Science &amp; Coding Demo</p>
+                <p class="footer-subnote">100% Local Browser Storage</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <span class="school-pill" id="topbar-school-name">🏫 Smart School</span>
+                    <span class="date-pill" id="topbar-current-date">📅 Loading date...</span>
+                </div>
+                <div class="top-bar-right">
+                    <button type="button" class="btn btn-sm btn-outline" data-goto="qr-scanner">
+                        <i data-lucide="camera"></i> Quick Scan
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary" data-goto="ai-assistant">
+                        <i data-lucide="bot"></i> Ask Demo AI
+                    </button>
+                </div>
+            </header>
+
+            <!-- =========================================================
+                 SECTION 1: HOME DASHBOARD
+                 ========================================================= -->
+            <section id="section-home" class="page-section active" aria-labelledby="heading-home">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow" id="home-school-badge">Smart School — Official Attendance Portal</span>
+                        <h2 id="heading-home" class="section-title">Welcome to SmartAttend AI</h2>
+                        <p class="section-desc">Fast, accurate QR code school attendance system with built-in rule-based AI insights.</p>
+                    </div>
+                    <div class="header-meta-stats">
+                        <div class="mini-stat-badge">
+                            <span class="mini-label">Registered Classes</span>
+                            <strong id="home-total-classes">0</strong>
+                        </div>
+                        <div class="mini-stat-badge">
+                            <span class="mini-label">Finalized Today</span>
+                            <strong id="home-finalized-today">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Required Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card card-blue">
+                        <div class="stat-icon-wrap"><i data-lucide="users"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">TOTAL STUDENTS</p>
+                            <h3 class="stat-value" id="stat-total-students">0</h3>
+                            <p class="stat-subtext" id="stat-classes-subtext">Across 0 classes</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-emerald">
+                        <div class="stat-icon-wrap"><i data-lucide="user-check"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">PRESENT TODAY</p>
+                            <h3 class="stat-value" id="stat-present-today">0</h3>
+                            <p class="stat-subtext" id="stat-present-subtext">Marked present today</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-rose">
+                        <div class="stat-icon-wrap"><i data-lucide="user-x"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">ABSENT TODAY</p>
+                            <h3 class="stat-value" id="stat-absent-today">0</h3>
+                            <p class="stat-subtext" id="stat-absent-subtext">In finalized sessions</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card card-indigo">
+                        <div class="stat-icon-wrap"><i data-lucide="percent"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">ATTENDANCE RATE</p>
+                            <h3 class="stat-value" id="stat-attendance-rate">0%</h3>
+                            <p class="stat-subtext" id="stat-rate-subtext">Today's attendance rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="card quick-actions-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-lucide="zap"></i> Quick Actions</h3>
+                        <span class="card-subtitle">Jump directly to common school tasks</span>
+                    </div>
+                    <div class="quick-actions-grid">
+                        <button type="button" class="quick-action-btn" data-goto="students">
+                            <span class="qa-icon bg-blue-soft"><i data-lucide="user-plus"></i></span>
+                            <span class="qa-title">Add Student</span>
+                            <span class="qa-desc">Register new students</span>
+                        </button>
+                        <button type="button" class="quick-action-btn" data-goto="qr-generator">
+                            <span class="qa-icon bg-emerald-soft"><i data-lucide="qr-code"></i></span>
+                            <span class="qa-title">Generate QR Codes</span>
+                            <span class="qa-desc">Print student ID cards</span>
+                        </button>
+                        <button type="button" class="quick-action-btn" data-goto="teacher-login">
+                            <span class="qa-icon bg-amber-soft"><i data-lucide="key-round"></i></span>
+                            <span class="qa-title">Teacher Login</span>
+                            <span class="qa-desc">Sign in to teacher portal</span>
+                        </button>
+                        <button type="button" class="quick-action-btn" data-goto="qr-scanner">
+                            <span class="qa-icon bg-emerald-solid"><i data-lucide="scan-line"></i></span>
+                            <span class="qa-title">Start Attendance</span>
+                            <span class="qa-desc">Scan QR or mark manually</span>
+                        </button>
+                        <button type="button" class="quick-action-btn" data-goto="reports">
+                            <span class="qa-icon bg-purple-soft"><i data-lucide="pie-chart"></i></span>
+                            <span class="qa-title">View Reports</span>
+                            <span class="qa-desc">Charts &amp; CSV exports</span>
+                        </button>
+                        <button type="button" class="quick-action-btn" data-goto="ai-assistant">
+                            <span class="qa-icon bg-indigo-soft"><i data-lucide="sparkles"></i></span>
+                            <span class="qa-title">AI Attendance Summary</span>
+                            <span class="qa-desc">Ask SmartAttend Demo AI</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Lower Grid: Chart + Recent Activity -->
+                <div class="dashboard-two-col">
+                    <!-- Overview Chart Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title"><i data-lucide="bar-chart-2"></i> Class Attendance Overview (Today)</h3>
+                                <p class="card-subtitle">Present vs. Registered students per class today</p>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="home-chart-wrapper">
+                            <canvas id="homeAttendanceChart" aria-label="Today's Class Attendance Overview Chart" role="img"></canvas>
+                        </div>
+                        <div id="home-chart-fallback" class="chart-text-summary"></div>
+                    </div>
+
+                    <!-- Recent Attendance Activity Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title"><i data-lucide="clock"></i> Recent Attendance Activity</h3>
+                                <p class="card-subtitle">Latest QR scans and manual check-ins</p>
+                            </div>
+                            <button type="button" class="btn btn-xs btn-outline" data-goto="records">View All</button>
+                        </div>
+                        <div id="home-recent-activity" class="activity-list">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 2: ADMIN DASHBOARD (CLASS & DEMO ADMIN HUB)
+                 ========================================================= -->
+            <section id="section-admin" class="page-section hidden" aria-labelledby="heading-admin">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">School Administration</span>
+                        <h2 id="heading-admin" class="section-title">Admin Dashboard &amp; Class Management</h2>
+                        <p class="section-desc">Manage classes, register students, and oversee school configuration.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" class="btn btn-primary" data-goto="students">
+                            <i data-lucide="user-plus"></i> Manage Students
+                        </button>
+                        <button type="button" class="btn btn-emerald" data-goto="qr-generator">
+                            <i data-lucide="printer"></i> Print QR Cards
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Required Demo Admin Access Security Notice -->
+                <div class="notice-card notice-info">
+                    <div class="notice-icon"><i data-lucide="info"></i></div>
+                    <div class="notice-body">
+                        <h4>Demo Admin Access Notice (Classroom Demonstration)</h4>
+                        <p>This Admin Dashboard is unlocked for demonstration purposes so Class 5 presenters, teachers, and judges can easily test adding classes, registering students, and printing QR cards. <strong>Note:</strong> Because this app runs 100% in your browser with no backend server, client-side role checks do not provide real security.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-two-col">
+                    <!-- Add New Class Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="folder-plus"></i> Add a New Class</h3>
+                            <p class="card-subtitle">Create a class before assigning students to it</p>
+                        </div>
+                        <form id="add-class-form" novalidate>
+                            <div class="form-group">
+                                <label for="new-class-name" class="form-label">Class Name <span class="required">*</span></label>
+                                <input type="text" id="new-class-name" class="form-input" placeholder="e.g., Class 5-C or Class 6-A" required maxlength="40">
+                                <small class="form-help">Give a clear class name such as "Class 5-C".</small>
+                                <p id="add-class-error" class="field-error hidden" role="alert"></p>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i data-lucide="plus-circle"></i> Create Class
+                            </button>
+                        </form>
+
+                        <hr class="divider">
+
+                        <!-- Quick Admin Shortcuts -->
+                        <div class="admin-quick-stats">
+                            <h4>School Summary</h4>
+                            <ul class="summary-list" id="admin-school-summary-list">
+                                <!-- Populated by JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Available Classes Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="layers"></i> Available School Classes</h3>
+                            <p class="card-subtitle">Rename classes or remove empty classes safely</p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" aria-label="Registered School Classes">
+                                <thead>
+                                    <tr>
+                                        <th>Class ID</th>
+                                        <th>Class Name</th>
+                                        <th>Enrolled Students</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="classes-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 3: STUDENT MANAGEMENT (REGISTRATION + TABLE)
+                 ========================================================= -->
+            <section id="section-students" class="page-section hidden" aria-labelledby="heading-students">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Student Directory &amp; Enrollment</span>
+                        <h2 id="heading-students" class="section-title">Student Management</h2>
+                        <p class="section-desc">Register new students, edit details, or print individual QR ID cards.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" class="btn btn-outline" data-goto="admin">
+                            <i data-lucide="layers"></i> Manage Classes
+                        </button>
+                        <button type="button" class="btn btn-emerald" data-goto="qr-generator">
+                            <i data-lucide="qr-code"></i> Batch QR Cards
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student Registration / Edit Card -->
+                <div class="card" id="student-form-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title" id="student-form-title"><i data-lucide="user-plus"></i> Register New Student</h3>
+                            <p class="card-subtitle" id="student-form-subtitle">Fill in the student details below. Student ID is auto-suggested.</p>
+                        </div>
+                        <button type="button" id="btn-generate-next-id" class="btn btn-xs btn-outline">
+                            <i data-lucide="wand-2"></i> Auto-Fill Next ID
+                        </button>
+                    </div>
+
+                    <form id="student-registration-form" novalidate>
+                        <input type="hidden" id="edit-student-original-id" value="">
+                        <div class="form-grid-5">
+                            <div class="form-group">
+                                <label for="student-id-input" class="form-label">Student ID <span class="required">*</span></label>
+                                <input type="text" id="student-id-input" class="form-input" placeholder="e.g., STU011" required maxlength="20">
+                                <small class="form-help">Unique code for QR badge</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="student-name-input" class="form-label">Student Full Name <span class="required">*</span></label>
+                                <input type="text" id="student-name-input" class="form-input" placeholder="e.g., Zainab Tariq" required maxlength="60">
+                                <small class="form-help">First and last name</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="student-class-select" class="form-label">Class <span class="required">*</span></label>
+                                <select id="student-class-select" class="form-select" required>
+                                    <!-- Populated by JS -->
+                                </select>
+                                <small class="form-help">Select registered class</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="student-section-input" class="form-label">Section <span class="required">*</span></label>
+                                <input type="text" id="student-section-input" class="form-input" placeholder="e.g., A" value="A" required maxlength="10">
+                                <small class="form-help">Class section letter</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="student-roll-input" class="form-label">Roll Number <span class="required">*</span></label>
+                                <input type="number" id="student-roll-input" class="form-input" placeholder="e.g., 6" min="1" max="999" required>
+                                <small class="form-help">Unique in class &amp; section</small>
+                            </div>
+                        </div>
+
+                        <p id="student-form-error" class="field-error hidden" role="alert"></p>
+
+                        <div class="form-actions">
+                            <button type="submit" id="student-submit-btn" class="btn btn-primary">
+                                <i data-lucide="check-circle-2"></i> Save Student
+                            </button>
+                            <button type="button" id="student-cancel-edit-btn" class="btn btn-outline hidden">
+                                Cancel Edit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Student Directory Table Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title"><i data-lucide="list"></i> Registered Students (<span id="student-count-badge">0</span>)</h3>
+                            <p class="card-subtitle">Search, filter by class, sort, or generate QR ID cards</p>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Search Bar -->
+                    <div class="filter-bar">
+                        <div class="filter-item filter-grow">
+                            <label for="student-search-input" class="form-label-sm">Search Name or ID</label>
+                            <div class="input-with-icon">
+                                <i data-lucide="search"></i>
+                                <input type="search" id="student-search-input" class="form-input" placeholder="Search by student name or ID (e.g., Ali or STU001)...">
+                            </div>
+                        </div>
+                        <div class="filter-item">
+                            <label for="student-filter-class" class="form-label-sm">Filter by Class</label>
+                            <select id="student-filter-class" class="form-select">
+                                <option value="ALL">All Classes</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="student-sort-select" class="form-label-sm">Sort By</label>
+                            <select id="student-sort-select" class="form-select">
+                                <option value="id-asc">Student ID (A → Z)</option>
+                                <option value="name-asc">Student Name (A → Z)</option>
+                                <option value="name-desc">Student Name (Z → A)</option>
+                                <option value="roll-asc">Roll Number (Low → High)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table" aria-label="Registered Students Table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Roll Number</th>
+                                    <th>QR Code</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="students-empty-state" class="empty-state hidden">
+                        <div class="empty-icon">🧑‍🎓</div>
+                        <h4>No Students Found</h4>
+                        <p>No students match your current search or filter criteria.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 4: QR CODE GENERATOR & ID CARDS
+                 ========================================================= -->
+            <section id="section-qr-generator" class="page-section hidden" aria-labelledby="heading-qr">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Student ID Cards &amp; QR Badges</span>
+                        <h2 id="heading-qr" class="section-title">QR Code Generator</h2>
+                        <p class="section-desc">Each QR code encodes only the student's unique ID (e.g., <code>STU001</code>) for privacy and speed.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" id="btn-print-visible-cards" class="btn btn-emerald">
+                            <i data-lucide="printer"></i> Print Displayed ID Cards
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Generator Controls -->
+                <div class="card">
+                    <div class="filter-bar">
+                        <div class="filter-item">
+                            <label for="qr-filter-class" class="form-label-sm">1. Filter by Class</label>
+                            <select id="qr-filter-class" class="form-select">
+                                <option value="ALL">All Classes</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item filter-grow">
+                            <label for="qr-filter-student" class="form-label-sm">2. Select Specific Student (Optional)</label>
+                            <select id="qr-filter-student" class="form-select">
+                                <option value="ALL">Show All Students in Selected Class</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item filter-buttons">
+                            <button type="button" id="btn-qr-generate-class" class="btn btn-primary">
+                                <i data-lucide="refresh-cw"></i> Regenerate QR Codes
+                            </button>
+                            <button type="button" id="btn-qr-generate-all" class="btn btn-outline">
+                                Show All Students
+                            </button>
+                        </div>
+                    </div>
+                    <p class="privacy-note">🔒 <strong>Privacy Guarantee:</strong> QR codes contain only the Student ID (like <code>STU001</code>). Personal addresses, phone numbers, or passwords are never encoded.</p>
+                </div>
+
+                <!-- Printable ID Cards Grid -->
+                <div id="qr-cards-grid" class="id-cards-grid">
+                    <!-- Populated dynamically with Student ID cards & QRCode.js canvases -->
+                </div>
+
+                <div id="qr-empty-state" class="empty-state hidden">
+                    <div class="empty-icon">🪪</div>
+                    <h4>No Student ID Cards to Display</h4>
+                    <p>Add students in the Student Management section or change your class filter above.</p>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 5: TEACHER LOGIN
+                 ========================================================= -->
+            <section id="section-teacher-login" class="page-section hidden" aria-labelledby="heading-login">
+                <div class="login-wrapper">
+                    <div class="card login-card">
+                        <div class="login-header">
+                            <div class="login-badge">🔐</div>
+                            <h2 id="heading-login" class="section-title">Teacher Portal Login</h2>
+                            <p class="section-desc">Sign in to take QR attendance, mark manual check-ins, or finalize class sessions.</p>
+                        </div>
+
+                        <!-- Already Logged-In Banner -->
+                        <div id="login-active-session-alert" class="notice-card notice-emerald hidden">
+                            <div class="notice-body">
+                                <h4>You are currently signed in as <span id="login-current-username">teacher1</span></h4>
+                                <p>Your session is active in this browser tab.</p>
+                                <div class="mt-2 flex-gap">
+                                    <button type="button" class="btn btn-sm btn-emerald" data-goto="teacher-dashboard">Go to Teacher Dashboard</button>
+                                    <button type="button" id="login-page-logout-btn" class="btn btn-sm btn-outline-danger">Logout</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="teacher-login-form" novalidate>
+                            <div class="form-group">
+                                <label for="teacher-username" class="form-label">Teacher Username <span class="required">*</span></label>
+                                <input type="text" id="teacher-username" class="form-input" placeholder="Enter username (e.g., teacher1)" autocomplete="username" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="teacher-password" class="form-label">Password <span class="required">*</span></label>
+                                <input type="password" id="teacher-password" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
+                            </div>
+
+                            <p id="teacher-login-error" class="field-error hidden" role="alert"></p>
+
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                <i data-lucide="log-in"></i> Sign In to Teacher Portal
+                            </button>
+                        </form>
+
+                        <!-- Demo Credentials Box (Required by Prompt) -->
+                        <div class="demo-credentials-box">
+                            <div class="demo-cred-header">
+                                <span>🧪 Classroom Demo Teacher Accounts</span>
+                                <span class="badge badge-blue">Click to Auto-Fill</span>
+                            </div>
+                            <p class="demo-cred-note">Click either account below to fill in the demo login form automatically:</p>
+                            <div class="demo-cred-grid">
+                                <button type="button" class="cred-pill" data-demo-user="teacher1" data-demo-pass="teach123">
+                                    <strong>Teacher 1</strong>
+                                    <span>User: <code>teacher1</code></span>
+                                    <span>Pass: <code>teach123</code></span>
+                                </button>
+                                <button type="button" class="cred-pill" data-demo-user="teacher2" data-demo-pass="teach456">
+                                    <strong>Teacher 2</strong>
+                                    <span>User: <code>teacher2</code></span>
+                                    <span>Pass: <code>teach456</code></span>
+                                </button>
+                            </div>
+                            <p class="security-disclaimer">⚠️ <em>Educational Note: This login is a frontend teaching demonstration using <code>sessionStorage</code>. Passwords are never saved in <code>localStorage</code>, and real production apps verify credentials on a secure backend server.</em></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 6: TEACHER DASHBOARD
+                 ========================================================= -->
+            <section id="section-teacher-dashboard" class="page-section hidden" aria-labelledby="heading-teacher-dash">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Teacher Control Center</span>
+                        <h2 id="heading-teacher-dash" class="section-title">Teacher Dashboard</h2>
+                        <p class="section-desc">Welcome, <strong id="td-teacher-name">teacher1</strong>! Select your class below to start taking attendance.</p>
+                    </div>
+                    <div class="section-actions">
+                        <span class="date-pill" id="td-current-date">Today</span>
+                        <button type="button" id="td-logout-btn" class="btn btn-outline-danger">
+                            <i data-lucide="log-out"></i> Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Teacher Login Prompt if Guest -->
+                <div id="td-guest-warning" class="notice-card notice-warning hidden">
+                    <div class="notice-icon"><i data-lucide="lock"></i></div>
+                    <div class="notice-body">
+                        <h4>Teacher Sign-In Recommended</h4>
+                        <p>You are viewing the Teacher Dashboard in Demo Visitor Mode. Please sign in with a demo teacher account to record or finalize official class attendance.</p>
+                        <button type="button" class="btn btn-sm btn-primary mt-2" data-goto="teacher-login">Go to Teacher Login</button>
+                    </div>
+                </div>
+
+                <!-- Step 1: Class & Date Selector Bar -->
+                <div class="card highlight-card">
+                    <div class="filter-bar align-end">
+                        <div class="filter-item filter-grow">
+                            <label for="td-class-select" class="form-label">Select Class for Attendance <span class="required">*</span></label>
+                            <select id="td-class-select" class="form-select form-select-lg">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="td-date-input" class="form-label">Attendance Date</label>
+                            <input type="date" id="td-date-input" class="form-input form-input-lg">
+                        </div>
+                        <div class="filter-item">
+                            <button type="button" id="td-start-scanner-btn" class="btn btn-emerald btn-lg">
+                                <i data-lucide="camera"></i> Start QR Scanner
+                            </button>
+                        </div>
+                    </div>
+                    <div class="session-status-strip" id="td-session-status-strip">
+                        <!-- Shows whether attendance session is Open or Finalized -->
+                    </div>
+                </div>
+
+                <!-- Selected Class Summary Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card card-blue">
+                        <div class="stat-icon-wrap"><i data-lucide="users"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">CLASS STUDENTS</p>
+                            <h3 class="stat-value" id="td-stat-total">0</h3>
+                            <p class="stat-subtext" id="td-stat-class-label">Selected class</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-emerald">
+                        <div class="stat-icon-wrap"><i data-lucide="check-circle"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">STUDENTS PRESENT</p>
+                            <h3 class="stat-value" id="td-stat-present">0</h3>
+                            <p class="stat-subtext">Marked present</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-rose">
+                        <div class="stat-icon-wrap"><i data-lucide="x-circle"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">STUDENTS ABSENT</p>
+                            <h3 class="stat-value" id="td-stat-absent">0</h3>
+                            <p class="stat-subtext" id="td-stat-absent-note">Pending / Finalized</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-indigo">
+                        <div class="stat-icon-wrap"><i data-lucide="activity"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">ATTENDANCE %</p>
+                            <h3 class="stat-value" id="td-stat-rate">0%</h3>
+                            <p class="stat-subtext">Selected session</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher Action Buttons Grid -->
+                <div class="teacher-actions-bar">
+                    <button type="button" class="btn btn-emerald btn-lg" id="td-action-scan">
+                        <i data-lucide="scan-line"></i> Start Scanner
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg" id="td-action-manual">
+                        <i data-lucide="user-check"></i> Manual Attendance
+                    </button>
+                    <button type="button" class="btn btn-indigo btn-lg" id="td-action-finalize">
+                        <i data-lucide="check-check"></i> Finalize Class Attendance
+                    </button>
+                    <button type="button" class="btn btn-outline btn-lg" data-goto="records">
+                        <i data-lucide="clipboard-list"></i> Attendance Records
+                    </button>
+                    <button type="button" class="btn btn-outline btn-lg" data-goto="reports">
+                        <i data-lucide="bar-chart-3"></i> Reports
+                    </button>
+                </div>
+
+                <!-- Recently Scanned Students in Selected Class -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title"><i data-lucide="history"></i> Recently Marked Students in Selected Class</h3>
+                            <p class="card-subtitle">Live feed of students checked in for the selected class and date</p>
+                        </div>
+                    </div>
+                    <div id="td-recent-scans-list" class="activity-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 7: QR CODE SCANNER & MANUAL ATTENDANCE
+                 ========================================================= -->
+            <section id="section-qr-scanner" class="page-section hidden" aria-labelledby="heading-scanner">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Live Classroom Check-In</span>
+                        <h2 id="heading-scanner" class="section-title">QR Code Scanner &amp; Manual Attendance</h2>
+                        <p class="section-desc">Scan student QR badges with your camera or mark students manually below.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" class="btn btn-outline" data-goto="teacher-dashboard">
+                            <i data-lucide="arrow-left"></i> Back to Dashboard
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Session Selector Strip (Class + Date + Finalize Button) -->
+                <div class="card scanner-session-card">
+                    <div class="filter-bar align-end">
+                        <div class="filter-item filter-grow">
+                            <label for="scanner-class-select" class="form-label">Active Class <span class="required">*</span></label>
+                            <select id="scanner-class-select" class="form-select">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="scanner-date-input" class="form-label">Attendance Date <span class="required">*</span></label>
+                            <input type="date" id="scanner-date-input" class="form-input">
+                        </div>
+                        <div class="filter-item">
+                            <button type="button" id="scanner-finalize-btn" class="btn btn-indigo">
+                                <i data-lucide="check-check"></i> Finalize Session
+                            </button>
+                        </div>
+                    </div>
+                    <div id="scanner-session-banner" class="session-status-strip"></div>
+                </div>
+
+                <!-- Scanner & Result Split Grid -->
+                <div class="scanner-grid">
+                    <!-- Left Column: Camera Viewport & Controls -->
+                    <div class="card scanner-camera-card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title"><i data-lucide="camera"></i> Camera QR Code Scanner</h3>
+                                <p class="card-subtitle">Hold the student's QR ID card steady in front of the camera</p>
+                            </div>
+                            <span id="scanner-status-badge" class="badge badge-gray">Camera Idle</span>
+                        </div>
+
+                        <!-- Camera Permission Explanation -->
+                        <div class="camera-hint-box">
+                            <p>💡 <strong>Before scanning:</strong> Click <strong>Start Scanner</strong> and allow browser camera access. Camera access requires running via <code>localhost</code> or <code>HTTPS</code>.</p>
+                        </div>
+
+                        <!-- html5-qrcode Reader Container -->
+                        <div class="qr-reader-wrapper">
+                            <div id="qr-reader" class="qr-reader-box"></div>
+                            <div id="qr-reader-placeholder" class="qr-reader-placeholder">
+                                <div class="placeholder-icon">📷</div>
+                                <p>Camera is currently off</p>
+                                <small>Select a class above and click "Start Scanner"</small>
+                            </div>
+                        </div>
+
+                        <!-- Scanner Control Buttons -->
+                        <div class="scanner-controls">
+                            <button type="button" id="btn-start-camera" class="btn btn-emerald btn-lg">
+                                <i data-lucide="play"></i> Start Scanner
+                            </button>
+                            <button type="button" id="btn-stop-camera" class="btn btn-danger btn-lg" disabled>
+                                <i data-lucide="square"></i> Stop Scanner
+                            </button>
+                            <button type="button" id="btn-switch-camera" class="btn btn-outline" disabled>
+                                <i data-lucide="refresh-ccw"></i> Switch Camera
+                            </button>
+                            <button type="button" id="btn-scan-again" class="btn btn-primary hidden">
+                                <i data-lucide="rotate-ccw"></i> Scan Again
+                            </button>
+                        </div>
+
+                        <!-- Classroom Demo / Hardware Fallback Simulator -->
+                        <div class="demo-scan-simulator">
+                            <div class="simulator-header">
+                                <span>🧪 <strong>Classroom Demo QR Simulator</strong> (Test without physical camera)</span>
+                            </div>
+                            <p class="simulator-desc">If your desktop doesn't have a webcam or you want to test specific QR scan scenarios (valid, duplicate, wrong class, unknown ID), simulate a QR scan right here:</p>
+                            <div class="simulator-controls">
+                                <select id="sim-student-select" class="form-select">
+                                    <!-- Populated with students & test cases -->
+                                </select>
+                                <button type="button" id="btn-simulate-scan" class="btn btn-primary">
+                                    <i data-lucide="zap"></i> Simulate QR Scan
+                                </button>
+                            </div>
+                            <div class="simulator-custom-row">
+                                <input type="text" id="sim-custom-qr-input" class="form-input" placeholder="Or type any QR code text (e.g., STU001 or UNKNOWN99)">
+                                <button type="button" id="btn-simulate-custom" class="btn btn-outline">
+                                    Test Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Scan Result Card & Session Progress -->
+                    <div class="card scanner-result-card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="Sparkles"></i> Scan Result &amp; Verification</h3>
+                            <p class="card-subtitle">Real-time verification against enrolled class roster</p>
+                        </div>
+
+                        <!-- Dynamic Result Display Area -->
+                        <div id="scan-result-container" class="scan-result-box result-neutral" aria-live="polite">
+                            <div class="result-icon">🪪</div>
+                            <h4 class="result-heading">Ready to Scan</h4>
+                            <p class="result-message">Scan a student's QR code or use the simulator to verify and record attendance.</p>
+                        </div>
+
+                        <!-- Mini Progress for Active Class -->
+                        <div class="scanner-progress-box">
+                            <div class="progress-header">
+                                <span id="scanner-progress-label">Class Progress</span>
+                                <strong id="scanner-progress-Text">0 / 0 Present (0%)</strong>
+                            </div>
+                            <div class="progress-bar-track">
+                                <div id="scanner-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Attendance Backup Section (Section 12 Requirement) -->
+                <div class="card" id="manual-attendance-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title"><i data-lucide="user-check"></i> Manual Attendance Roll Call (Backup Option)</h3>
+                            <p class="card-subtitle">Mark students present manually if a QR badge is forgotten or camera is unavailable, or undo an accidental marking.</p>
+                        </div>
+                        <div class="manual-quick-btns">
+                            <button type="button" id="btn-mark-all-present" class="btn btn-xs btn-outline">
+                                Mark All Present
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-item filter-grow">
+                            <label for="manual-search-input" class="form-label-sm">Search Student in This Class</label>
+                            <input type="search" id="manual-search-input" class="form-input" placeholder="Search by student name or ID...">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table" aria-label="Manual Attendance Roster">
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Class &amp; Section</th>
+                                    <th>Current Status</th>
+                                    <th>Time &amp; Method</th>
+                                    <th>Manual Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="manual-roster-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 8: ATTENDANCE RECORDS
+                 ========================================================= -->
+            <section id="section-records" class="page-section hidden" aria-labelledby="heading-records">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Official Attendance Log</span>
+                        <h2 id="heading-records" class="section-title">Attendance Records</h2>
+                        <p class="section-desc">Search, filter, inspect, or make permitted corrections to recorded attendance entries.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" id="records-export-csv-btn" class="btn btn-emerald">
+                            <i data-lucide="download"></i> Export Filtered CSV
+                        </button>
+                        <button type="button" class="btn btn-primary" data-goto="reports">
+                            <i data-lucide="bar-chart-3"></i> View Summary Reports
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Card -->
+                <div class="card">
+                    <div class="filter-grid-6">
+                        <div class="filter-item">
+                            <label for="rec-filter-date" class="form-label-sm">Date</label>
+                            <input type="date" id="rec-filter-date" class="form-input">
+                        </div>
+                        <div class="filter-item">
+                            <label for="rec-filter-class" class="form-label-sm">Class</label>
+                            <select id="rec-filter-class" class="form-select">
+                                <option value="ALL">All Classes</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="rec-filter-status" class="form-label-sm">Attendance Status</label>
+                            <select id="rec-filter-status" class="form-select">
+                                <option value="ALL">All Statuses</option>
+                                <option value="Present">Present Only</option>
+                                <option value="Absent">Absent (Finalized Sessions)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="rec-filter-method" class="form-label-sm">Method</label>
+                            <select id="rec-filter-method" class="form-select">
+                                <option value="ALL">All Methods</option>
+                                <option value="QR">QR Scan</option>
+                                <option value="Manual">Manual Entry</option>
+                                <option value="Finalized">System Absent (Finalized)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item filter-span-2">
+                            <label for="rec-search-input" class="form-label-sm">Search Student Name or ID</label>
+                            <input type="search" id="rec-search-input" class="form-input" placeholder="Type student name, ID, or roll no...">
+                        </div>
+                    </div>
+                    <div class="filter-footer">
+                        <span id="records-showing-count" class="records-count-text">Showing 0 records</span>
+                        <button type="button" id="rec-clear-filters-btn" class="btn btn-xs btn-outline">
+                            Reset All Filters (Show All Dates)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Records Table Card -->
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="data-table" aria-label="Attendance Records Table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Roll No</th>
+                                    <th>Attendance Status</th>
+                                    <th>Attendance Method</th>
+                                    <th>Time</th>
+                                    <th>Teacher</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-table-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="records-empty-state" class="empty-state hidden">
+                        <div class="empty-icon">📋</div>
+                        <h4>No Attendance Records Match Your Filters</h4>
+                        <p>Try clearing the date filter or selecting "All Classes" to view historical records.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 9: ATTENDANCE REPORTS & CHARTS
+                 ========================================================= -->
+            <section id="section-reports" class="page-section hidden" aria-labelledby="heading-reports">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Analytics, Summaries &amp; Exports</span>
+                        <h2 id="heading-reports" class="section-title">Attendance Reports</h2>
+                        <p class="section-desc">Analyze daily, class, and individual student attendance across finalized sessions.</p>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" id="btn-export-report-csv" class="btn btn-emerald">
+                            <i data-lucide="file-spreadsheet"></i> Export CSV
+                        </button>
+                        <button type="button" id="btn-print-report" class="btn btn-primary">
+                            <i data-lucide="printer"></i> Print Report Sheet
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Mode & Session Finalization Card -->
+                <div class="card">
+                    <div class="filter-bar align-end">
+                        <div class="filter-item">
+                            <label for="rep-date-mode" class="form-label-sm">Date Range Mode</label>
+                            <select id="rep-date-mode" class="form-select">
+                                <option value="today">Today</option>
+                                <option value="single">Specific Date</option>
+                                <option value="range">Date Range (Multi-Day)</option>
+                                <option value="all">All Recorded Dates</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item" id="rep-single-date-wrap">
+                            <label for="rep-single-date" class="form-label-sm">Select Date</label>
+                            <input type="date" id="rep-single-date" class="form-input">
+                        </div>
+
+                        <div class="filter-item hidden" id="rep-start-date-wrap">
+                            <label for="rep-start-date" class="form-label-sm">From Date</label>
+                            <input type="date" id="rep-start-date" class="form-input">
+                        </div>
+
+                        <div class="filter-item hidden" id="rep-end-date-wrap">
+                            <label for="rep-end-date" class="form-label-sm">To Date</label>
+                            <input type="date" id="rep-end-date" class="form-input">
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="rep-class-filter" class="form-label-sm">Filter Class</label>
+                            <select id="rep-class-filter" class="form-select">
+                                <option value="ALL">All Classes</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="rep-print-mode" class="form-label-sm">Print Format</label>
+                            <select id="rep-print-mode" class="form-select">
+                                <option value="all">Full Report (All Tables)</option>
+                                <option value="daily">Daily Attendance Sheet</option>
+                                <option value="class">Class Summary Only</option>
+                                <option value="student">Individual Student Report</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Explanation of Finalized Sessions Rule -->
+                    <div class="finalization-explainer" id="rep-finalization-bar">
+                        <!-- Dynamically updated by JS -->
+                    </div>
+                </div>
+
+                <!-- Daily / Period Summary Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card card-blue">
+                        <div class="stat-icon-wrap"><i data-lucide="users"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">ENROLLED STUDENTS</p>
+                            <h3 class="stat-value" id="rep-stat-enrolled">0</h3>
+                            <p class="stat-subtext" id="rep-stat-sessions">0 finalized sessions</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-emerald">
+                        <div class="stat-icon-wrap"><i data-lucide="user-check"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">TOTAL PRESENT</p>
+                            <h3 class="stat-value" id="rep-stat-present">0</h3>
+                            <p class="stat-subtext">Total present check-ins</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-rose">
+                        <div class="stat-icon-wrap"><i data-lucide="user-x"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">TOTAL ABSENT</p>
+                            <h3 class="stat-value" id="rep-stat-absent">0</h3>
+                            <p class="stat-subtext">In finalized sessions</p>
+                        </div>
+                    </div>
+                    <div class="stat-card card-indigo">
+                        <div class="stat-icon-wrap"><i data-lucide="percent"></i></div>
+                        <div class="stat-info">
+                            <p class="stat-label">ATTENDANCE RATE</p>
+                            <h3 class="stat-value" id="rep-stat-rate">0%</h3>
+                            <p class="stat-subtext">Overall period rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid (3 Charts: Doughnut, Class Bar, Trend Line) -->
+                <div class="charts-grid-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="pie-chart"></i> Present vs. Absent</h3>
+                            <p class="card-subtitle">Finalized sessions ratio</p>
+                        </div>
+                        <div class="chart-container-sm">
+                            <canvas id="reportDoughnutChart" aria-label="Present versus Absent Doughnut Chart" role="img"></canvas>
+                        </div>
+                        <p id="report-doughnut-text" class="chart-alt-text"></p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="bar-chart"></i> Attendance % by Class</h3>
+                            <p class="card-subtitle">Comparison across classes</p>
+                        </div>
+                        <div class="chart-container-sm">
+                            <canvas id="reportClassBarChart" aria-label="Attendance Percentage by Class Chart" role="img"></canvas>
+                        </div>
+                        <p id="report-class-text" class="chart-alt-text"></p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="trending-up"></i> Daily Attendance Trend</h3>
+                            <p class="card-subtitle">Attendance % across recorded dates</p>
+                        </div>
+                        <div class="chart-container-sm">
+                            <canvas id="reportTrendChart" aria-label="Attendance Trend Chart" role="img"></canvas>
+                        </div>
+                        <p id="report-trend-text" class="chart-alt-text"></p>
+                    </div>
+                </div>
+
+                <!-- Class Summary Table -->
+                <div class="card" id="report-class-summary-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title"><i data-lucide="layers"></i> Class Attendance Summary</h3>
+                            <p class="card-subtitle">Breakdown of attendance performance by class</p>
+                        </div>
+                        <button type="button" class="btn btn-xs btn-outline" id="btn-print-class-only">
+                            <i data-lucide="printer"></i> Print Class Summary
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" aria-label="Class Attendance Summary Table">
+                            <thead>
+                                <tr>
+                                    <th>Class Name</th>
+                                    <th>Total Students</th>
+                                    <th>Finalized Sessions</th>
+                                    <th>Present Count</th>
+                                    <th>Absent Count</th>
+                                    <th>Attendance Percentage</th>
+                                    <th>Session Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-class-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Individual Student Summary Table -->
+                <div class="card" id="report-student-summary-card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title"><i data-lucide="graduation-cap"></i> Individual Student Attendance Summary</h3>
+                            <p class="card-subtitle">Calculated from finalized class sessions in the selected period</p>
+                        </div>
+                        <button type="button" class="btn btn-xs btn-outline" id="btn-print-student-only">
+                            <i data-lucide="printer"></i> Print Student Reports
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" aria-label="Individual Student Attendance Summary">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Roll No</th>
+                                    <th>Recorded School Days</th>
+                                    <th>Present Days</th>
+                                    <th>Absent Days</th>
+                                    <th>Attendance %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-student-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 10: AI ATTENDANCE ASSISTANT
+                 ========================================================= -->
+            <section id="section-ai-assistant" class="page-section hidden" aria-labelledby="heading-ai">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">Rule-Based Smart Insights</span>
+                        <h2 id="heading-ai" class="section-title">AI Attendance Assistant</h2>
+                        <p class="section-desc"><strong>Smart Attendance Assistant — Demo AI</strong> (100% private, offline rule-based engine analyzing your browser's saved records).</p>
+                    </div>
+                    <div class="section-actions">
+                        <span class="badge badge-indigo" id="ai-threshold-badge">Low Attendance Threshold: 75%</span>
+                        <button type="button" id="ai-clear-chat-btn" class="btn btn-outline btn-sm">
+                            <i data-lucide="trash-2"></i> Reset Chat
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ai-layout">
+                    <!-- Left: Chat Window -->
+                    <div class="card ai-chat-card">
+                        <div class="ai-chat-header">
+                            <div class="ai-avatar">🤖</div>
+                            <div>
+                                <h3 class="card-title">Smart Attendance Assistant — Demo AI</h3>
+                                <p class="card-subtitle">Instant calculations from live student &amp; finalized session data — no external API keys required</p>
+                            </div>
+                        </div>
+
+                        <!-- Messages Container -->
+                        <div id="ai-messages-list" class="ai-messages-list" aria-live="polite">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Suggested Questions Chips -->
+                        <div class="ai-suggestions-strip">
+                            <p class="suggestions-label">✨ Suggested Questions (Click to ask):</p>
+                            <div class="suggestions-chips" id="ai-suggestion-chips">
+                                <button type="button" class="chip-btn" data-question="Summarize today's attendance.">1. Summarize today's attendance.</button>
+                                <button type="button" class="chip-btn" data-question="Which students have low attendance?">2. Which students have low attendance?</button>
+                                <button type="button" class="chip-btn" data-question="Which class has the highest attendance?">3. Which class has the highest attendance?</button>
+                                <button type="button" class="chip-btn" data-question="Show the present and absent counts.">4. Show the present and absent counts.</button>
+                                <button type="button" class="chip-btn" data-question="Generate a weekly attendance summary.">5. Generate a weekly attendance summary.</button>
+                                <button type="button" class="chip-btn" data-question="Give suggestions for improving attendance.">6. Give suggestions for improving attendance.</button>
+                            </div>
+                        </div>
+
+                        <!-- Input Form -->
+                        <form id="ai-chat-form" class="ai-input-bar">
+                            <label for="ai-question-input" class="sr-only">Ask the AI Attendance Assistant a question</label>
+                            <input type="text" id="ai-question-input" class="form-input" placeholder="Ask about today's summary, low attendance, highest class, absent counts, or weekly trends..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="send"></i> Ask Assistant
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: How Demo AI Works & Quick Context -->
+                    <div class="card ai-info-card">
+                        <h3 class="card-title"><i data-lucide="cpu"></i> How Demo AI Works</h3>
+                        <p class="ai-info-text">This assistant uses a transparent, beginner-friendly <strong>JavaScript keyword &amp; intent engine</strong> rather than sending student data to an external server.</p>
+
+                        <div class="ai-context-controls">
+                            <label for="ai-context-class" class="form-label-sm">Focus Class for Specific Queries</label>
+                            <select id="ai-context-class" class="form-select">
+                                <option value="ALL">All Classes (School-Wide)</option>
+                            </select>
+                        </div>
+
+                        <div class="ai-privacy-box">
+                            <h4>🛡️ Student Privacy &amp; Ethics</h4>
+                            <ul>
+                                <li><strong>100% Local:</strong> Zero student data leaves your browser.</li>
+                                <li><strong>Finalized Sessions Only:</strong> Low-attendance alerts only evaluate finalized school days.</li>
+                                <li><strong>Supportive Tone:</strong> Never makes assumptions about a student's personal life.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 SECTION 11: SETTINGS & DEMO DATA MANAGEMENT
+                 ========================================================= -->
+            <section id="section-settings" class="page-section hidden" aria-labelledby="heading-settings">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">System Configuration</span>
+                        <h2 id="heading-settings" class="section-title">Settings &amp; Demo Data Management</h2>
+                        <p class="section-desc">Configure school branding, attendance thresholds, and demonstration dataset resets.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-two-col">
+                    <!-- School & Attendance Settings Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="sliders"></i> Application Settings</h3>
+                            <p class="card-subtitle">Saved automatically in browser <code>localStorage</code></p>
+                        </div>
+
+                        <form id="settings-form" novalidate>
+                            <div class="form-group">
+                                <label for="setting-school-name" class="form-label">School Name <span class="required">*</span></label>
+                                <input type="text" id="setting-school-name" class="form-input" placeholder="Smart School" required maxlength="60">
+                                <small class="form-help">Displayed on dashboards, reports, and printable student ID cards.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="setting-threshold" class="form-label">Low Attendance Alert Threshold (%) <span class="required">*</span></label>
+                                <input type="number" id="setting-threshold" class="form-input" min="10" max="100" value="75" required>
+                                <small class="form-help">Students below this percentage in finalized sessions are flagged for support (Default: 75%).</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="setting-default-class" class="form-label">Default Selected Class</label>
+                                <select id="setting-default-class" class="form-select">
+                                    <!-- Populated by JS -->
+                                </select>
+                                <small class="form-help">Pre-selected class when opening Teacher Dashboard and QR Scanner.</small>
+                            </div>
+
+                            <p id="settings-form-error" class="field-error hidden" role="alert"></p>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="save"></i> Save Settings
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Demo Data Management Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i data-lucide="database"></i> Demo Data Management</h3>
+                            <p class="card-subtitle">Reset or clear browser <code>localStorage</code> before a presentation</p>
+                        </div>
+
+                        <div class="demo-data-actions">
+                            <div class="data-action-item">
+                                <div>
+                                    <h4>Restore Original Demonstration Data</h4>
+                                    <p>Resets Smart School with Classes 5-A, 5-B, and 4-A, 12 fictional students, and realistic historical &amp; today's attendance records.</p>
+                                </div>
+                                <button type="button" id="btn-restore-demo-data" class="btn btn-emerald">
+                                    <i data-lucide="rotate-ccw"></i> Restore Demo Data
+                                </button>
+                            </div>
+
+                            <hr class="divider">
+
+                            <div class="data-action-item">
+                                <div>
+                                    <h4>Clear All Application Data</h4>
+                                    <p>Removes all students, classes, and attendance records so you can test empty states or build a school from scratch.</p>
+                                </div>
+                                <button type="button" id="btn-clear-all-data" class="btn btn-danger">
+                                    <i data-lucide="trash-2"></i> Clear All Demo Data
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="storage-explainer-box">
+                            <h4>ℹ️ How Browser Storage Works</h4>
+                            <p>SmartAttend AI stores data in your browser's <code>localStorage</code> under clear keys (<code>smartAttend_students</code>, <code>smartAttend_classes</code>, <code>smartAttend_attendance</code>, <code>smartAttend_sessions</code>, <code>smartAttend_settings</code>). Data persists across page refreshes on this device, but clearing browser site data will erase it. It is designed for offline-friendly classroom demos, not as a production cloud database.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- =========================================================
+         PRINT-ONLY AREA (For Clean ID Cards & Reports Printing)
+         ========================================================= -->
+    <div id="print-staging-area" class="print-only" aria-hidden="true"></div>
+
+    <!-- =========================================================
+         REUSABLE CONFIRMATION & INPUT MODAL
+         ========================================================= -->
+    <div id="app-modal-backdrop" class="modal-backdrop hidden no-print" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title" class="modal-title">Confirm Action</h3>
+                <button type="button" id="modal-close-x" class="btn-icon-only" aria-label="Close modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-message" class="modal-message"></p>
+                <div id="modal-input-wrap" class="form-group hidden">
+                    <label id="modal-input-label" for="modal-text-input" class="form-label"></label>
+                    <input type="text" id="modal-text-input" class="form-input">
+                    <p id="modal-input-error" class="field-error hidden"></p>
+                </div>
+                <div id="modal-extra-options" class="modal-extra-options hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modal-cancel-btn" class="btn btn-outline">Cancel</button>
+                <button type="button" id="modal-confirm-btn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TOAST NOTIFICATION CONTAINER
+         ========================================================= -->
+    <div id="toast-container" class="toast-container no-print" aria-live="polite"></div>
+
+    <!-- Main Application JavaScript -->
+    <script src="script.js" defer></script>
+</body>
+</html>

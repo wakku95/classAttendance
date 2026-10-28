@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAttend AI — Class 5 Presentation Script & Guide (3 Students)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #1d4ed8;
+            --blue-light: #eff6ff;
+            --blue-border: #bfdbfe;
+            --emerald: #059669;
+            --emerald-light: #ecfdf5;
+            --emerald-border: #a7f3d0;
+            --purple: #6d28d9;
+            --purple-light: #f5f3ff;
+            --purple-border: #ddd6fe;
+            --amber: #d97706;
+            --amber-light: #fffbeb;
+            --amber-border: #fde68a;
+            --dark: #0f172a;
+            --muted: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--dark);
+            background: #f1f5f9;
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .sheet {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        .sheet:last-child {
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        /* Cover Header */
+        .hero-banner {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb, #059669);
+            color: #ffffff;
+            padding: 32px;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 24px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .hero-banner h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hero-banner p {
+            font-size: 1.05rem;
+            opacity: 0.95;
+        }
+
+        h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.45rem;
+            margin-bottom: 14px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.12rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 18px 0 24px;
+        }
+
+        .team-card {
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .team-s1 { background: var(--blue-light); border-color: var(--blue-border); }
+        .team-s2 { background: var(--emerald-light); border-color: var(--emerald-border); }
+        .team-s3 { background: var(--purple-light); border-color: var(--purple-border); }
+
+        .student-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: #ffffff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .tag-s1 { background: var(--blue); }
+        .tag-s2 { background: var(--emerald); }
+        .tag-s3 { background: var(--purple); }
+
+        .info-box {
+            background: var(--amber-light);
+            border: 2px solid var(--amber-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .info-box h3 {
+            color: #92400e;
+        }
+
+        .info-box ul {
+            padding-left: 20px;
+            color: #78350f;
+            font-size: 0.95rem;
+        }
+
+        .info-box li {
+            margin-bottom: 6px;
+        }
+
+        /* Speaker Turn Blocks */
+        .speaker-header {
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .header-s1 { background: linear-gradient(135deg, #1d4ed8, #2563eb); }
+        .header-s2 { background: linear-gradient(135deg, #047857, #10b981); }
+        .header-s3 { background: linear-gradient(135deg, #5b21b6, #7c3aed); }
+
+        .speaker-header h2 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .speaker-header span {
+            background: rgba(255, 255, 255, 0.22);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .step-block {
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            background: #ffffff;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .step-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-cue {
+            background: #f1f5f9;
+            border-left: 4px solid #0f172a;
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #1e293b;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .speech-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .speech-box {
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 0.96rem;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .box-urdu {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .box-eng {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .lang-label {
+            display: block;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .box-urdu .lang-label { color: #1e40af; }
+        .box-eng .lang-label { color: #166534; }
+
+        .qa-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            break-inside: avoid;
+        }
+
+        .qa-q {
+            font-weight: 800;
+            color: #1e3a8a;
+            margin-bottom: 6px;
+        }
+
+        .qa-a {
+            font-size: 0.94rem;
+            color: #334155;
+        }
+
+        code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+
+        .print-btn-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-print {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .print-btn-bar {
+                display: none !important;
+            }
+            .sheet {
+                box-shadow: none;
+                border: none;
+                padding: 18px 22px;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-btn-bar">
+        <button class="btn-print" onclick="window.print()">🖨️ Print or Save as PDF</button>
+    </div>
+
+    <div class="page-container">
+
+        <!-- ================================================================
+             PAGE 1: OVERVIEW, HOW WE BUILT IT & 3-STUDENT ROLES
+             ================================================================ -->
+        <div class="sheet">
+            <div class="hero-banner">
+                <div class="hero-badge">🎓 Class 5 Science &amp; Coding Project Presentation</div>
+                <h1>SmartAttend AI</h1>
+                <p>Smart QR School Attendance System with AI Assistant — Easy Presentation Script for 3 Students (Roman Urdu + English)</p>
+            </div>
+
+            <h2>🌟 Project Summary (Is Web App Mein Kya Hai?)</h2>
+            <p style="margin-bottom: 14px; color: var(--muted);">
+                <strong>SmartAttend AI</strong> ek modern school attendance web application hai. Is mein paper register par naam bolne ke bajaye har student ka ek <strong>QR Code ID Card</strong> hota hai. Teacher apna ID aur Password daal kar login karti hain, camera se student ka QR card scan karti hain, aur 1 second mein attendance lag jati hai! Saath hi is mein ek <strong>Demo AI Assistant</strong> bhi hai jo attendance ka hisaab aur reports foran bata deta hai.
+            </p>
+
+            <div class="info-box">
+                <h3>🤖 Hum Ne Ye App Kaise Banaya? (How We Built It with AI &amp; Teacher's Help)</h3>
+                <ul>
+                    <li><strong>Step 1 (AI ko Idea aur Prompt Dena):</strong> Sab se pehle hum ne socha ke class mein attendance lene ka ek smart tarika hona chahiye. Hum ne <strong>AI (Artificial Intelligence)</strong> ko bataya ke humein school ke liye ek aisa QR Attendance System chahiye jis mein Teacher Login, Student QR Cards, Camera Scanner, Charts, aur AI Assistant ho.</li>
+                    <li><strong>Step 2 (AI se Code Banwana):</strong> AI ne hamari instructions (prompt) ko samajh kar <strong>HTML5, CSS3, aur JavaScript</strong> ka code tayyar kiya.</li>
+                    <li><strong>Step 3 (Testing aur Changes):</strong> Phir hum ne is mein apni classes (<code>Class 5-A</code>, <code>Class 5-B</code>, <code>Class 4-A</code>) aur demo students add kiye, QR scanner aur buttons ko check kiya.</li>
+                    <li><strong>Step 4 (Teacher ki Help se Online / Ready Karna):</strong> Aakhir mein hum ne apni <strong>Teacher ki help se</strong> is project ko server par chalaya aur online / live demo ke liye ready kar diya!</li>
+                </ul>
+            </div>
+
+            <h2>👦👧 3 Students Ki Baari (Who Speaks What)</h2>
+            <div class="team-grid">
+                <div class="team-card team-s1">
+                    <span class="student-tag tag-s1">Student 1</span>
+                    <h3>Intro + How We Made It + Home Dashboard</h3>
+                    <p style="font-size: 0.88rem; color: var(--muted);">
+                        Salam/Greeting, Project ka naam, hum ne AI aur Teacher ki help se kaise banaya, aur <strong>Home Dashboard</strong> ke 4 cards dikhana.
+                    </p>
+                </div>
+
+                <div class="team-card team-s2">
+                    <span class="student-tag tag-s2">Student 2</span>
+                    <h3>Teacher Login + Add Student + QR Card &amp; Scan</h3>
+                    <p style="font-size: 0.88rem; color: var(--muted);">
+                        <strong>Teacher Login</strong> karna, class mein <strong>Student Add</strong> karna, <strong>QR ID Card</strong> banana, aur <strong>QR Code Scan</strong> kar ke dikhana.
+                    </p>
+                </div>
+
+                <div class="team-card team-s3">
+                    <span class="student-tag tag-s3">Student 3</span>
+                    <h3>Reports + Charts + AI Assistant + Thank You</h3>
+                    <p style="font-size: 0.88rem; color: var(--muted);">
+                        Attendance <strong>Finalize</strong> karna, <strong>Charts &amp; CSV Sheet</strong> dikhana, <strong>AI Assistant</strong> se sawal poochna, aur Conclusion.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background:#f8fafc; border:1px dashed #94a3b8; padding:12px 16px; border-radius:10px; font-size:0.88rem;">
+                💡 <strong>Tip for Students:</strong> Har step mein <strong>Roman Urdu</strong> aur <strong>Easy English</strong> dono likhe hain. Aap chaho to Roman Urdu bolo, English bolo, ya dono mila kar bolo!
+            </div>
+        </div>
+
+        <!-- ================================================================
+             PAGE 2: STUDENT 1 SCRIPT
+             ================================================================ -->
+        <div class="sheet">
+            <div class="speaker-header header-s1">
+                <h2>🎤 STUDENT 1 KI BAARI (Introduction &amp; Home Dashboard)</h2>
+                <span>Time: ~1.5 Minutes</span>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">1️⃣ Greeting &amp; Project Introduction (Salam aur Taaruf)</div>
+                <div class="action-cue">👉 Screen Action: App ko "1. Home Dashboard" par khula rakhein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu (Bacha Aise Bole)</span>
+                        "Assalam-o-Alaikum everyone! Mera naam <strong>[Apna Naam]</strong> hai aur hum Class 5 ke students hain. Aaj hum aap ko apna project dikhane ja rahe hain jis ka naam hai <strong>SmartAttend AI — Smart QR School Attendance System</strong>.<br><br>
+                        School mein rozana paper register par roll call lene mein kaafi time lagta hai aur kabhi ghalti bhi ho jati hai. Is maslay ko hal karne ke liye hum ne ye smart web app banaya hai!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Assalam-o-Alaikum and Good Morning everyone! My name is <strong>[Your Name]</strong> and we are Class 5 students. Today we are presenting our project called <strong>SmartAttend AI — Smart QR School Attendance System</strong>.<br><br>
+                        Taking daily attendance on a paper register takes a lot of classroom time. To solve this problem, we built this fast and smart web application!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">2️⃣ Hum Ne Ye Kaise Banaya? (How We Built It with AI &amp; Teacher's Help)</div>
+                <div class="action-cue">👉 Screen Action: Mouse se poore dashboard aur sidebar menu ki taraf ishara karein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Ab mein aap ko batata/batati hoon ke hum ne ye kaise banaya! Sab se pehle hum ne <strong>AI (Artificial Intelligence)</strong> ko bataya ke humein school ke liye ek aisa system chahiye jis mein QR Code se attendance lage. AI ne hamari baat samajh kar HTML, CSS aur JavaScript mein ye system bana diya.<br><br>
+                        Phir hum ne is mein apni classes aur students ka data dala, har button ko test kiya, aur phir apni <strong>Teacher ki help se</strong> is ko online aur live chala diya!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "How did we build this? First, we gave a detailed prompt to <strong>AI</strong> explaining what kind of school QR attendance system we needed. The AI helped us generate the HTML, CSS, and JavaScript code.<br><br>
+                        Then we customized the classes, tested all the features, and with <strong>our Teacher's help</strong>, we put the system live so anyone can use it in the browser!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">3️⃣ Home Dashboard Dikhana (Showing the Home Dashboard)</div>
+                <div class="action-cue">👉 Screen Action: Top par 4 colorful cards (Total Students, Present Today, Absent Today, Attendance Rate) aur neeche Chart dikhayein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Ye hamara <strong>Home Dashboard</strong> hai. Yahan oopar 4 cards mein poore school ka live hisaab nazar aata hai: Total kitne students hain, aaj kitne <strong>Present</strong> hain, kitne <strong>Absent</strong> hain, aur aaj ki <strong>Attendance Percentage</strong> kya hai.<br><br>
+                        Ab mere dost <strong>[Student 2 ka Naam]</strong> aap ko dikhayenge ke Teacher is mein login kaise karti hain aur QR code se attendance kaise lagti hai!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "This is our <strong>Home Dashboard</strong>. At the top, four summary cards show our live school numbers: Total Students, Present Today, Absent Today, and the Attendance Rate percentage, along with a live chart.<br><br>
+                        Now my friend <strong>[Student 2's Name]</strong> will show you how a teacher logs in, adds students, and scans QR codes!"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================
+             PAGE 3: STUDENT 2 SCRIPT
+             ================================================================ -->
+        <div class="sheet">
+            <div class="speaker-header header-s2">
+                <h2>🎤 STUDENT 2 KI BAARI (Login, Add Student, QR Card &amp; Scanner)</h2>
+                <span>Time: ~2 Minutes</span>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">1️⃣ Step 1: Teacher Login (ID aur Password Daal Kar Login Karna)</div>
+                <div class="action-cue">👉 Screen Action: Sidebar mein "5. Teacher Login" par click karein → "Teacher 1" box par click karein (`teacher1` / `teach123`) → "Sign In" dabayein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Thank you! Mera naam <strong>[Apna Naam]</strong> hai. Is system ko use karne ke liye sab se pehle <strong>Teacher ko Login karna hota hai</strong>. Dekhein, yahan Teacher apna Username (<code>teacher1</code>) aur Password (<code>teach123</code>) daal kar Sign In karti hain, to un ka <strong>Teacher Dashboard</strong> khul jata hai."
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Thank you! My name is <strong>[Your Name]</strong>. First, the <strong>Teacher logs in</strong> using their Username (<code>teacher1</code>) and Password (<code>teach123</code>). As soon as they sign in, the <strong>Teacher Dashboard</strong> opens up."
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">2️⃣ Step 2: Class Mein Students Add Karna (Student Management)</div>
+                <div class="action-cue">👉 Screen Action: Sidebar mein "3. Student Management" par click karein → Naam likhein (maslan "Zain Ali"), Class 5-A select karein → "Save Student" dabayein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Is ke baad Teacher ya Admin apni class ke <strong>Students add karti hain</strong>. Yahan hum student ka naam, Class, Section aur Roll Number likhte hain. Hamara system khud hi student ko ek unique ID de deta hai (jaise <code>STU013</code>) aur duplicate roll number nahi aane deta!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Next, in <strong>Student Management</strong>, the teacher adds students to their class by entering the student's Name, Class, Section, and Roll Number. The app automatically creates a unique Student ID like <code>STU013</code> and prevents duplicate entries!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">3️⃣ Step 3: Student QR ID Card Banana Aur Print Karna</div>
+                <div class="action-cue">👉 Screen Action: Sidebar mein "4. QR Code Generator" par click karein → Student ID Cards dikhayein aur "Print Card" button dikhayein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Student add hone ke baad hum <strong>QR Code Generator</strong> mein aate hain. Yahan har bache ka <strong>School ID Card</strong> ban jata hai jis par us ka QR Code laga hota hai. Privacy ke liye is QR code mein sirf Student ID hoti hai. Teacher ek click se poore class ke cards print kar sakti hain!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Once students are added, the <strong>QR Code Generator</strong> creates a printable <strong>Student ID Card</strong> for every child. For safety and privacy, the QR code only contains the Student ID. Teachers can print all cards with one click!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">4️⃣ Step 4: QR Code Scan Kar Ke Attendance Lagana + Manual Backup</div>
+                <div class="action-cue">👉 Screen Action: "7. QR Scanner &amp; Manual" par click karein → Camera ya "Simulate QR Scan" button dabayein → Green "PRESENT" card dikhayein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Ab sab se mazay ka hissa: <strong>QR Scanner!</strong> Subah jab bacha class mein aata hai, wo apna card camera ke samne dikhata hai aur 1 second mein <strong>ATTENDANCE MARKED PRESENT</strong> likha aa jata hai! Agar koi bacha dobara card scan kare to system roak deta hai ke <em>'Already Marked Present'</em>. Aur agar koi bacha card bhool jaye, to neeche <strong>Manual Attendance</strong> se bhi Teacher present laga sakti hain!<br><br>
+                        Ab <strong>[Student 3 ka Naam]</strong> aap ko Reports aur hamara AI Assistant dikhayenge!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Now the best part: <strong>The QR Scanner!</strong> When a student shows their ID card to the camera, it marks them <strong>PRESENT</strong> in one second! If someone scans the same card twice, the app blocks duplicates. And if a student forgets their card, the teacher can mark them using the <strong>Manual Attendance</strong> list below!<br><br>
+                        Now <strong>[Student 3's Name]</strong> will show you the Reports and our AI Assistant!"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================
+             PAGE 4: STUDENT 3 SCRIPT & Q&A CHEAT SHEET
+             ================================================================ -->
+        <div class="sheet">
+            <div class="speaker-header header-s3">
+                <h2>🎤 STUDENT 3 KI BAARI (Reports, AI Assistant &amp; Conclusion)</h2>
+                <span>Time: ~1.5 Minutes</span>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">1️⃣ Step 5: Attendance Finalize Karna, Charts &amp; CSV Download</div>
+                <div class="action-cue">👉 Screen Action: "9. Attendance Reports" par click karein → 3 Colorful Charts dikhayein → "Export CSV" button par click karein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Thank you! Mera naam <strong>[Apna Naam]</strong> hai. Jab Teacher class ki attendance poori kar leti hain to wo <strong>Finalize Attendance</strong> par click karti hain, jis se jo bache nahi aaye wo khud hi <strong>Absent</strong> count ho jate hain.<br><br>
+                        Yahan <strong>Attendance Reports</strong> mein aap colorful Charts dekh sakte hain ke kis class ki attendance sab se achi hai, aur <strong>Export CSV</strong> daba kar poori report Excel ke liye download bhi kar sakte hain!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "Thank you! My name is <strong>[Your Name]</strong>. When the teacher finishes roll call, they click <strong>Finalize Attendance</strong> so remaining students are marked <strong>Absent</strong>.<br><br>
+                        In <strong>Attendance Reports</strong>, we get automatic Pie and Bar Charts comparing classes, and teachers can click <strong>Export CSV</strong> to download the attendance sheet for Excel!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">2️⃣ Step 6: Smart Attendance Assistant — Demo AI</div>
+                <div class="action-cue">👉 Screen Action: Sidebar mein "10. AI Assistant" par click karein → Suggested Question #1 ("Summarize today's attendance.") aur #2 ("Which students have low attendance?") par click karein.</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Aur ye hai hamare project ka sab se khaas feature: <strong>AI Attendance Assistant!</strong> Teacher ko lambi calculation karne ki zaroorat nahi. Bas yahan click karein: <em>'Summarize today's attendance'</em> ya <em>'Which students have low attendance?'</em> — to hamara Demo AI foran hisaab laga kar bata deta hai ke aaj kitne bache Present hain aur kin bachon ki attendance 75% se kam hai taake teacher un ki help kar sakein!"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "And here is our favorite feature: the <strong>AI Attendance Assistant!</strong> Teachers don't need to calculate percentages by hand. They just click a question like <em>'Summarize today's attendance'</em> or <em>'Which students have low attendance?'</em> and our Demo AI immediately replies with today's summary and lists students below 75% attendance!"
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-block">
+                <div class="step-title">3️⃣ Conclusion (Teeno Students Ek Saath)</div>
+                <div class="speech-grid">
+                    <div class="speech-box box-urdu">
+                        <span class="lang-label">🇵🇰 Roman Urdu</span>
+                        "Is tarha hamara <strong>SmartAttend AI</strong> school ka waqt bachata hai, kaghaz (paper) bachata hai, aur attendance ko smart banata hai. Hamari presentation dekhne ka bohot shukriya! <strong>Thank you!</strong>"
+                    </div>
+                    <div class="speech-box box-eng">
+                        <span class="lang-label">🇬🇧 Easy English</span>
+                        "In this way, <strong>SmartAttend AI</strong> saves classroom time, saves paper, and makes school attendance smart and easy. Thank you so much for listening to our presentation!"
+                    </div>
+                </div>
+            </div>
+
+            <h2>💡 Judges Ke Sawalon Ke Asaan Jawab (Quick Q&amp;A Cheat Sheet)</h2>
+            <div class="qa-card">
+                <p class="qa-q">❓ Judge Question 1: "Is ka data kahan save hota hai? Kya page refresh karne se udd jata hai?"</p>
+                <p class="qa-a">✅ <strong>Jawab:</strong> "Nahi Sir/Ma'am! Is ka sara data browser ke <code>localStorage</code> mein save hota hai. Page refresh karne ya band kar ke kholne par bhi sara record safe rehta hai."</p>
+            </div>
+            <div class="qa-card">
+                <p class="qa-q">❓ Judge Question 2: "QR Code ke andar kya chupa hota hai?"</p>
+                <p class="qa-a">✅ <strong>Jawab:</strong> "Students ki privacy ke liye QR Code mein sirf Student ka ID (jaise <code>STU001</code>) hota hai. Kisi ka phone number ya ghar ka address QR code mein nahi hota."</p>
+            </div>
+            <div class="qa-card">
+                <p class="qa-q">❓ Judge Question 3: "Agar camera kaam na kare ya bacha card bhool jaye to kya hoga?"</p>
+                <p class="qa-a">✅ <strong>Jawab:</strong> "Us ke liye hum ne Scanner page ke neeche <strong>Manual Attendance</strong> ka backup option bhi banaya hai jahan se Teacher ek click se Present laga sakti hain!"</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
