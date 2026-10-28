@@ -295,15 +295,14 @@
         ];
 
         // Realistic attendance records across 3 historical finalized days + Today
+        // NOTE: For Today in Class 5-A, STU001 (Ali Ahmed), STU002 (Sara Khan), and STU003 (Ahmed Ali)
+        // start UNMARKED so presenters can print and scan their 3 QR cards live during the demo!
         const defaultAttendance = [
             // --- Today's Attendance ---
-            // Class 5-A: 4 Present (STU001..STU004), STU005 Absent (80% attendance)
-            { id: "ATT_T01", studentId: "STU001", classId: "CLASS_5A", date: today, time: "08:05 AM", status: "Present", method: "QR", teacher: "teacher1" },
-            { id: "ATT_T02", studentId: "STU002", classId: "CLASS_5A", date: today, time: "08:07 AM", status: "Present", method: "QR", teacher: "teacher1" },
-            { id: "ATT_T03", studentId: "STU003", classId: "CLASS_5A", date: today, time: "08:09 AM", status: "Present", method: "QR", teacher: "teacher1" },
+            // Class 5-A Today: STU004 (Ayesha Noor) already checked in; STU001, STU002, STU003 ready for live QR scan!
             { id: "ATT_T04", studentId: "STU004", classId: "CLASS_5A", date: today, time: "08:12 AM", status: "Present", method: "Manual", teacher: "teacher1" },
 
-            // Class 5-B Today: 3 Present (STU006, STU007, STU008)
+            // Class 5-B Today: 3 Present (STU006, STU007, STU008), STU009 Absent
             { id: "ATT_T05", studentId: "STU006", classId: "CLASS_5B", date: today, time: "08:14 AM", status: "Present", method: "QR", teacher: "teacher2" },
             { id: "ATT_T06", studentId: "STU007", classId: "CLASS_5B", date: today, time: "08:16 AM", status: "Present", method: "QR", teacher: "teacher2" },
             { id: "ATT_T07", studentId: "STU008", classId: "CLASS_5B", date: today, time: "08:18 AM", status: "Present", method: "QR", teacher: "teacher2" },
@@ -349,13 +348,12 @@
             { id: "ATT_P02", studentId: "STU002", classId: "CLASS_5A", date: threeDaysAgo, time: "08:04 AM", status: "Present", method: "QR", teacher: "teacher1" },
             { id: "ATT_P03", studentId: "STU003", classId: "CLASS_5A", date: threeDaysAgo, time: "08:08 AM", status: "Present", method: "QR", teacher: "teacher1" },
             { id: "ATT_P04", studentId: "STU004", classId: "CLASS_5A", date: threeDaysAgo, time: "08:12 AM", status: "Present", method: "QR", teacher: "teacher1" },
-            // STU005 absent threeDaysAgo (present 1 out of 4 finalized sessions = 25%)
+            // STU005 absent threeDaysAgo
 
             { id: "ATT_P05", studentId: "STU006", classId: "CLASS_5B", date: threeDaysAgo, time: "08:05 AM", status: "Present", method: "QR", teacher: "teacher2" },
             { id: "ATT_P06", studentId: "STU007", classId: "CLASS_5B", date: threeDaysAgo, time: "08:07 AM", status: "Present", method: "QR", teacher: "teacher2" },
             { id: "ATT_P07", studentId: "STU008", classId: "CLASS_5B", date: threeDaysAgo, time: "08:10 AM", status: "Present", method: "QR", teacher: "teacher2" },
             { id: "ATT_P08", studentId: "STU009", classId: "CLASS_5B", date: threeDaysAgo, time: "08:14 AM", status: "Present", method: "Manual", teacher: "teacher2" },
-            // STU009 present 1 out of 4 finalized sessions = 25%
 
             { id: "ATT_P09", studentId: "STU010", classId: "CLASS_4A", date: threeDaysAgo, time: "08:02 AM", status: "Present", method: "QR", teacher: "teacher1" },
             { id: "ATT_P10", studentId: "STU011", classId: "CLASS_4A", date: threeDaysAgo, time: "08:05 AM", status: "Present", method: "QR", teacher: "teacher1" },
@@ -363,7 +361,7 @@
         ];
 
         const defaultSessions = [
-            { id: "SES_T_5A", classId: "CLASS_5A", date: today, finalizedAt: "08:30 AM", teacher: "teacher1" },
+            // Class 5-A session for today starts OPEN so teacher1 can scan STU001, STU002, STU003 live and then click Finalize!
             { id: "SES_T_5B", classId: "CLASS_5B", date: today, finalizedAt: "08:35 AM", teacher: "teacher2" },
             { id: "SES_T_4A", classId: "CLASS_4A", date: today, finalizedAt: "08:32 AM", teacher: "teacher1" },
 
